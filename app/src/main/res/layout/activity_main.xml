@@ -6,13 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="1dp">
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NFC Tag Manager" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="108dp"
+            android:layout_height="89dp"
+            app:srcCompat="@drawable/nfc" />
+
+        <Button
+            android:id="@+id/btnRead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Read NFC tag message" />
+
+        <Button
+            android:id="@+id/btnWrite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Write NFC tag message" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

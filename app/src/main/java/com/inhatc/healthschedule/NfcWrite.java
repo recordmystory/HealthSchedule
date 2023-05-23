@@ -1,4 +1,4 @@
-package com.inhatc.nfcmanager_source;
+package com.inhatc.healthschedule;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
