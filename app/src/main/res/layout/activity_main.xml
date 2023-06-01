@@ -37,5 +37,18 @@
             android:layout_height="wrap_content"
             android:text="Write NFC tag message" />
 
+        <Button
+            android:id="@+id/btnGetApiData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="API Connect Test" />
+
+        <TextView
+            android:id="@+id/textApiData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ApiData"
+            android:scrollbars="vertical"/>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
