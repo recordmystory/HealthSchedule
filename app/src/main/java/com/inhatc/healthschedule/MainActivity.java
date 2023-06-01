@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         //api 데이터 화면표시
         textApiData = (TextView) findViewById(R.id.textApiData);
+        textApiData.setMovementMethod(new ScrollingMovementMethod());  //스크롤
 
         //Write 버튼 클릭
         Button getApiData = (Button) findViewById(R.id.btnGetApiData);
