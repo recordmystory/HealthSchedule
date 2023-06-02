@@ -45,6 +45,12 @@
             android:text="Write NFC tag message" />
 
         <Button
+            android:id="@+id/btnNaverMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NaverMap" />
+
+        <Button
             android:id="@+id/btnGetApiData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -51,6 +51,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //NaverMap
+        Button btnNaverMap = (Button) findViewById(R.id.btnNaverMap);
+        btnNaverMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), NaverMap.class);
+                startActivity(intent);
+            }
+        });
 
         //api 데이터 화면표시
         textApiData = (TextView) findViewById(R.id.textApiData);
@@ -66,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 String numOfRows = "1000";      //한 페이지 결과 수
                 String pageNo = "1";            //페이지 번호
                 String dataType = "XML";         //요청 자료형식(XML/JSON)
-                String base_date = "20230531" ; //발표일자
+                String base_date = "20230603" ; //발표일자
                 String base_time = "0200";      //발표 시간
                 String nx = "55";               //예보지점 X
                 String ny = "127";              //예보지점 Y
