@@ -41,6 +41,8 @@
         <activity android:name=".NfcReader"/>
         <activity android:name=".NfcWrite"/>
         <activity android:name=".NaverMap"/>
+        <activity android:name=".ScheduleUploadActivity"/>
+        <activity android:name=".HealthTimeRecommend"/>
     </application>
 
 </manifest>
