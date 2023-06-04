@@ -1,15 +1,22 @@
 package com.inhatc.healthschedule;
 
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -23,8 +30,9 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    //Push Test1
-
+    //사용자가 지정한 도착 위치값
+    double arrivedLatitude = 0;
+    double arrivedLongitude = 0;
     private TextView textApiData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), NaverMap.class);
-                startActivity(intent);
+
+                //startActivityResult.launch(intent);
+                launcher.launch(intent);
+
+                //startActivityForResult(intent, 100);
             }
         });
 
@@ -279,4 +291,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
+    //naverMap 액티비티 종료하면서 인챈트값 반환
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>()
+            {
+                @Override
+                public void onActivityResult(ActivityResult data)
+                {
+                    Log.d("TAG", "data : " + data);
+                    if (data.getResultCode() == Activity.RESULT_OK)
+                    {
+                        Intent intent = data.getData();
+                        arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
+                        arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
+                        textApiData.setText("위도x : " + arrivedLatitude + ", 경도y : " + arrivedLongitude);
+                    }
+                }
+            });
+
+
+
 }

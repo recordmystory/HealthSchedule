@@ -1,5 +1,6 @@
 package com.inhatc.healthschedule;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +10,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,13 +20,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.CameraUpdate;
+import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PathOverlay;
+import com.naver.maps.map.util.FusedLocationSource;
 
 import java.util.Arrays;
 
@@ -34,6 +40,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
     private com.naver.maps.map.NaverMap mMap;
     private LatLng Start_location = null;
     private LatLng Current_location;
+    private LatLng Center_location;
     private String strPosition = null;
     private String strCaption = null;
     private int intStart = 0;
@@ -41,10 +48,21 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
     LocationManager locationManager;
     LocationListener locationListener;
 
+    //정중앙 마커 위칭값
+    double arrivedLatitude = 0;
+    double arrivedLongitude = 0;
+
+    //
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private FusedLocationSource locationSource;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.naver_map);
+
+        //현재위치 찾기 추가
+        locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
         mapFragment = (MapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment == null) {
@@ -53,12 +71,68 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         }
 
         mapFragment.getMapAsync(this);
+
+        //이 위치를 도착지점으로 설정
+        Button btnArrived = (Button) findViewById(R.id.btnArrived);
+        btnArrived.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MainActivity.class);
+                intent.putExtra("arrivedLatitude", arrivedLatitude); //id 전달
+                intent.putExtra("arrivedLongitude", arrivedLongitude); //회원번호 전달
+                setResult(RESULT_OK, intent);   //layout 종료하면서 값 전달
+                finish();
+                //Intent intent = new Intent(getApplicationContext(), NfcReader.class);
+                //startActivity(intent);
+            }
+        });
+
     }
 
     @Override
     public void onMapReady(@NonNull com.naver.maps.map.NaverMap naverMap) {
 
         mMap = naverMap;
+
+        //현재위치 찾기 추가
+        mMap.getUiSettings().setLocationButtonEnabled(true);
+        mMap.setLocationSource(locationSource);
+
+        CameraPosition cameraPosition = mMap.getCameraPosition();
+
+
+
+        //마커 정중앙에 표시
+        double dLatitude = cameraPosition.target.latitude;
+        double dLongitude = cameraPosition .target.longitude;
+        Center_location = new LatLng(dLatitude, dLongitude);
+
+        Marker centerMarker = new Marker();
+        centerMarker.setPosition(Center_location);
+        centerMarker.setMap(mMap);
+        centerMarker.setVisible(true);
+        // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
+        mMap.addOnCameraChangeListener((reason, animated) -> {
+            System.out.println("NaverMap 카메라 변경 - reson: " + reason + ", animated: " + animated);
+            Center_location = new LatLng(mMap.getCameraPosition().target.latitude, naverMap.getCameraPosition().target.longitude);
+            centerMarker.setPosition(Center_location);
+        });
+
+
+
+        // 카메라의 움직임 종료에 대한 이벤트 리스너 인터페이스.
+        mMap.addOnCameraIdleListener(() -> {
+            Toast.makeText(getApplicationContext(), "카메라 움직임 종료", Toast.LENGTH_SHORT).show();
+            arrivedLatitude = mMap.getCameraPosition().target.latitude;
+            arrivedLongitude = mMap.getCameraPosition().target.longitude;
+
+            System.out.println("정중앙 위치값");
+            System.out.println("x : " + arrivedLatitude);
+            System.out.println("y : " + arrivedLongitude);
+        });
+
+
+
         long minTime = 10000;   //10초마다 (단위 milliSecond)
         float minDistance = 20; //20M 마다
 
@@ -87,8 +161,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         LocationManager locationManager;
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
         }
 
         String locationProvider;
@@ -124,13 +198,13 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         Current_location = new LatLng(dLatitude, dLongitude);
 
         if (Start_location == null) {
-            CameraUpdate camerUpdate = CameraUpdate.zoomTo(15);
-            mMap.moveCamera(camerUpdate);
 
             LocationOverlay locationOverlay = mMap.getLocationOverlay();
             locationOverlay.setVisible(true);
             locationOverlay.setPosition(Current_location);
-            intStart = 0;
+
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(Current_location);
+            mMap.moveCamera(cameraUpdate);
 
         } else {
             CameraUpdate cameraUpdate1 = CameraUpdate.scrollTo(Current_location);
@@ -171,6 +245,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         objMK.setMap(mMap);
         objMK.setVisible(true);
 
+        //이건 마커 텍스트 보여줄 때
         InfoWindow infoWindow1 = new InfoWindow();
         infoWindow1.setAdapter(new InfoWindow.DefaultTextAdapter(this) {
             @NonNull
@@ -180,6 +255,22 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
             }
         });
         infoWindow1.open(objMK);
+    }
+
+
+    //
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,  @NonNull int[] grantResults) {
+        if (locationSource.onRequestPermissionsResult(
+                requestCode, permissions, grantResults)) {
+            if (!locationSource.isActivated()) { // 권한 거부됨
+                mMap.setLocationTrackingMode(LocationTrackingMode.None);
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(
+                requestCode, permissions, grantResults);
     }
 
     @Override
