@@ -1,7 +1,9 @@
 package com.inhatc.healthschedule;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +22,10 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class ScheduleUploadActivity extends AppCompatActivity {
+
+    // DB 사용
+    DBHelper myDBHelper;
+    SQLiteDatabase sqlDB;
 
     EditText healthHour; // 운동 소요시간
     Button btnRegister; // 등록 버튼
@@ -51,9 +57,6 @@ public class ScheduleUploadActivity extends AppCompatActivity {
         arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddressTextView);
 
 
-
-
-
         Calendar calendar = new GregorianCalendar();
         mYear = calendar.get(Calendar.YEAR);
         mMonth = calendar.get(Calendar.MONTH);
@@ -63,21 +66,53 @@ public class ScheduleUploadActivity extends AppCompatActivity {
         datePicker.init(mYear, mMonth, mDay, mOnDateChangedListener);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) { // 운동 소요시간 등록 버튼 클릭시
                 if (healthHour.getText().toString().length() == 0/* && healthHour.getText().equals(0)*/) { // 사용자가 아무 값도 입력하지 않은 경우
                     txtnull.setText("소요시간을 입력해주세요.");
                 } else { // 사용자가 입력한 값이 있을 경우
-                    Intent intent = new Intent(view.getContext(), HealthTimeRecommend.class);
-                    txtnull.setText("운동시간이 등록되었습니다.");
-                    intent.putExtra("hour", healthHour.getText().toString());
-                    intent.putExtra("year", mYear);
-                    intent.putExtra("month", mMonth);
-                    intent.putExtra("day", mDay);
-                    startActivity(intent);
+
+                    String hour = healthHour.getText().toString();
+
+                    // DBHelper 클래스를 사용하여 데이터베이스 생성 또는 열기
+                    myDBHelper = new DBHelper(view.getContext());
+                    sqlDB = myDBHelper.getWritableDatabase();
+
+
+                    sqlDB.delete("schedule", null, null); // DB에 남아있는 데이터 삭제
+
+                    ContentValues values = new ContentValues();
+                    values.put("healthhour", healthHour.getText().toString());
+                    values.put("year", mYear);
+                    values.put("month", mMonth);
+                    values.put("day", mDay);
+
+                    // 데이터베이스에 값을 저장
+                    long result = sqlDB.insert("schedule", null, values);
+
+                    if (result != -1) {
+
+                        txtnull.setText("운동시간이 등록되었습니다.");
+                        Intent intent = new Intent(view.getContext(), HealthTimeRecommend.class);
+                        startActivity(intent);
+                    }
+
+                    // 데이터베이스 및 커서 닫기
+                    sqlDB.close();
+                    myDBHelper.close();
+
                 }
             }
         });
+
+
+                    /* txtnull.setText("운동시간이 등록되었습니다.");
+                    intent.putExtra("hour", healthHour.getText().toString());
+                    intent.putExtra("year", mYear);
+                    intent.putExtra("month", mMonth);
+                    intent.putExtra("day", mDay); */
+
 
         //도착위치지정 btn
         btnRegisterNaverMap = findViewById(R.id.btnRegisterNaverMap);
@@ -104,14 +139,11 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
     //도착위치 x,y,주소값 반환
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>()
-            {
+            new ActivityResultCallback<ActivityResult>() {
                 @Override
-                public void onActivityResult(ActivityResult data)
-                {
+                public void onActivityResult(ActivityResult data) {
                     Log.d("TAG", "data : " + data);
-                    if (data.getResultCode() == Activity.RESULT_OK)
-                    {
+                    if (data.getResultCode() == Activity.RESULT_OK) {
                         Intent intent = data.getData();
                         arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
                         arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);

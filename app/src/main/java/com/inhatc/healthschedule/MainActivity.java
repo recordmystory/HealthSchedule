@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -35,17 +36,19 @@ public class MainActivity extends AppCompatActivity {
     double arrivedLongitude = 0;
     private TextView textApiData;
     String arrivedAddress = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Button btnHealthDataInput = findViewById(R.id.btnHealthDataInput); // 버튼 클릭시 운동시간 및 날짜 입력 화면으로 넘어감
         //btnHealthDataInput 버튼 클릭
         btnHealthDataInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(getApplicationContext(), ScheduleUploadActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ScheduleUploadActivity.class);
                 startActivity(intent);
             }
         });
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 String numOfRows = "1000";      //한 페이지 결과 수
                 String pageNo = "1";            //페이지 번호
                 String dataType = "XML";         //요청 자료형식(XML/JSON)
-                String base_date = "20230603" ; //발표일자
+                String base_date = "20230603"; //발표일자
                 String base_time = "0200";      //발표 시간
                 String nx = "55";               //예보지점 X
                 String ny = "127";              //예보지점 Y
@@ -125,27 +128,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     int total = 0;  //API 클릭 횟수
 
     //API 호출
     private class DownloadWebpageTask1 extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(String... urls){
-            try{
-                String strData = downloadUrl((String)urls[0]);
+        protected String doInBackground(String... urls) {
+            try {
+                String strData = downloadUrl((String) urls[0]);
                 return strData;
-            }catch(IOException e){
+            } catch (IOException e) {
                 return "Fail download !";
             }
         }
 
 
-
-        protected void onPostExecute(String result){
+        protected void onPostExecute(String result) {
             String strHeaderCd = "";
             String strBusRouteId = "";
             String strBusRouteNo = "";
@@ -178,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
                         case XmlPullParser.END_TAG:
                             break;
-                            
+
                         case XmlPullParser.TEXT:
                             switch (tagName) {
                                 case "baseDate": {  //발표일자
@@ -248,12 +247,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private String downloadUrl(String myUrl) throws IOException{
+        private String downloadUrl(String myUrl) throws IOException {
             String strLine = null;
-            String strPage="";
+            String strPage = "";
 
             HttpURLConnection urlConn = null;
-            try{
+            try {
                 URL url = new URL(myUrl);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestMethod("GET");
@@ -262,11 +261,11 @@ public class MainActivity extends AppCompatActivity {
                 BufferedReader bufReader;
                 bufReader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 
-                while ((strLine = bufReader.readLine()) != null){
-                    strPage+=strLine;
+                while ((strLine = bufReader.readLine()) != null) {
+                    strPage += strLine;
                 }
                 return strPage;
-            }finally{
+            } finally {
                 urlConn.disconnect();
             }
         }
@@ -276,14 +275,11 @@ public class MainActivity extends AppCompatActivity {
 
     //naverMap 액티비티 종료하면서 인챈트값 반환
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>()
-            {
+            new ActivityResultCallback<ActivityResult>() {
                 @Override
-                public void onActivityResult(ActivityResult data)
-                {
+                public void onActivityResult(ActivityResult data) {
                     Log.d("TAG", "data : " + data);
-                    if (data.getResultCode() == Activity.RESULT_OK)
-                    {
+                    if (data.getResultCode() == Activity.RESULT_OK) {
                         Intent intent = data.getData();
                         arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
                         arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
@@ -295,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-
 
 
 }
