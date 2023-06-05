@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     double arrivedLatitude = 0;
     double arrivedLongitude = 0;
     private TextView textApiData;
+    String arrivedAddress = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -306,7 +307,11 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = data.getData();
                         arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
                         arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
-                        textApiData.setText("위도x : " + arrivedLatitude + ", 경도y : " + arrivedLongitude);
+
+                        arrivedAddress = intent.getStringExtra("arrivedAddress");
+
+
+                        textApiData.setText("위도x : " + arrivedLatitude + ", 경도y : " + arrivedLongitude + "\n" + arrivedAddress);
                     }
                 }
             });

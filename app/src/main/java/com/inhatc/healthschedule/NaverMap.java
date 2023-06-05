@@ -1,10 +1,15 @@
 package com.inhatc.healthschedule;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,6 +17,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,7 +37,10 @@ import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PathOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
@@ -52,6 +61,9 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
     double arrivedLatitude = 0;
     double arrivedLongitude = 0;
 
+    private TextView arrivedAddressTextView;
+    String arrivedAddress = null;
+    
     //
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
@@ -60,6 +72,9 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.naver_map);
+
+        //api 데이터 화면표시
+        arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddress);
 
         //현재위치 찾기 추가
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
@@ -80,6 +95,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
                 Intent intent = new Intent(view.getContext(), MainActivity.class);
                 intent.putExtra("arrivedLatitude", arrivedLatitude); //id 전달
                 intent.putExtra("arrivedLongitude", arrivedLongitude); //회원번호 전달
+                intent.putExtra("arrivedAddress", arrivedAddress); //주소 전달
                 setResult(RESULT_OK, intent);   //layout 종료하면서 값 전달
                 finish();
                 //Intent intent = new Intent(getApplicationContext(), NfcReader.class);
@@ -118,20 +134,19 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
             centerMarker.setPosition(Center_location);
         });
 
-
-
         // 카메라의 움직임 종료에 대한 이벤트 리스너 인터페이스.
         mMap.addOnCameraIdleListener(() -> {
             Toast.makeText(getApplicationContext(), "카메라 움직임 종료", Toast.LENGTH_SHORT).show();
             arrivedLatitude = mMap.getCameraPosition().target.latitude;
             arrivedLongitude = mMap.getCameraPosition().target.longitude;
+            arrivedAddress = getAddress(arrivedLatitude,arrivedLongitude);
+
+            arrivedAddressTextView.setText(arrivedAddress);
 
             System.out.println("정중앙 위치값");
             System.out.println("x : " + arrivedLatitude);
             System.out.println("y : " + arrivedLongitude);
         });
-
-
 
         long minTime = 10000;   //10초마다 (단위 milliSecond)
         float minDistance = 20; //20M 마다
@@ -271,6 +286,33 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(
                 requestCode, permissions, grantResults);
+    }
+
+    public String getAddress(double lat, double lng) {
+        String nowAddress ="현재 위치를 확인 할 수 없습니다.";
+        Geocoder geocoder = new Geocoder(mapFragment.getContext(), Locale.KOREA);
+        List<Address> address;
+        try {
+            if (geocoder != null) {
+                //세번째 파라미터는 좌표에 대해 주소를 리턴 받는 갯수로
+                //한좌표에 대해 두개이상의 이름이 존재할수있기에 주소배열을 리턴받기 위해 최대갯수 설정
+                address = geocoder.getFromLocation(lat, lng, 1);
+
+                if (address != null && address.size() > 0) {
+                    // 주소 받아오기
+                    String currentLocationAddress = address.get(0).getAddressLine(0).toString();
+                    nowAddress  = currentLocationAddress;
+
+                }
+            }
+
+        } catch (IOException e) {
+            //Toast.makeText(baseContext, "주소를 가져 올 수 없습니다.", Toast.LENGTH_LONG).show();
+            nowAddress  = "주소를 가져 올 수 없습니다.";
+            e.printStackTrace();
+
+        }
+        return nowAddress;
     }
 
     @Override
