@@ -56,10 +56,9 @@ public class ScheduleUploadNaverMap extends FragmentActivity implements OnMapRea
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.naver_map);
-
+        setContentView(R.layout.schedule_upload_naver_map);
         //api 데이터 화면표시
-        arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddress);
+        arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddressTextView);
 
         //현재위치 찾기 추가
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);

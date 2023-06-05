@@ -17,32 +17,10 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="NFC Tag Manager" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="108dp"
-            android:layout_height="89dp"
-            app:srcCompat="@drawable/nfc" />
-
-        <Button
-            android:id="@+id/btnRead"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Read NFC tag message" />
-
-        <Button
-            android:id="@+id/btnWrite"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Write NFC tag message" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <Button
             android:id="@+id/btnNaverMap"

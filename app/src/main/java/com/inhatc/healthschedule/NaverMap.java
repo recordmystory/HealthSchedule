@@ -73,9 +73,6 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.naver_map);
 
-        //api 데이터 화면표시
-        arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddress);
-
         //현재위치 찾기 추가
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
@@ -87,73 +84,18 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
         mapFragment.getMapAsync(this);
 
-        //이 위치를 도착지점으로 설정
-        Button btnArrived = (Button) findViewById(R.id.btnArrived);
-        btnArrived.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), MainActivity.class);
-                intent.putExtra("arrivedLatitude", arrivedLatitude); //id 전달
-                intent.putExtra("arrivedLongitude", arrivedLongitude); //회원번호 전달
-                intent.putExtra("arrivedAddress", arrivedAddress); //주소 전달
-                setResult(RESULT_OK, intent);   //layout 종료하면서 값 전달
-                finish();
-                //Intent intent = new Intent(getApplicationContext(), NfcReader.class);
-                //startActivity(intent);
-            }
-        });
-
     }
 
     @Override
     public void onMapReady(@NonNull com.naver.maps.map.NaverMap naverMap) {
 
         mMap = naverMap;
-
         //현재위치 찾기 추가
         mMap.getUiSettings().setLocationButtonEnabled(true);
         mMap.setLocationSource(locationSource);
 
-        CameraPosition cameraPosition = mMap.getCameraPosition();
-
-
-
-        //마커 정중앙에 표시
-        double dLatitude = cameraPosition.target.latitude;
-        double dLongitude = cameraPosition .target.longitude;
-        Center_location = new LatLng(dLatitude, dLongitude);
-
-        Marker centerMarker = new Marker();
-        centerMarker.setPosition(Center_location);
-        centerMarker.setMap(mMap);
-        centerMarker.setVisible(true);
-        // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
-        mMap.addOnCameraChangeListener((reason, animated) -> {
-            System.out.println("NaverMap 카메라 변경 - reson: " + reason + ", animated: " + animated);
-            Center_location = new LatLng(mMap.getCameraPosition().target.latitude, naverMap.getCameraPosition().target.longitude);
-            centerMarker.setPosition(Center_location);
-        });
-
-        // 카메라의 움직임 종료에 대한 이벤트 리스너 인터페이스.
-        mMap.addOnCameraIdleListener(() -> {
-            Toast.makeText(getApplicationContext(), "카메라 움직임 종료", Toast.LENGTH_SHORT).show();
-            arrivedLatitude = mMap.getCameraPosition().target.latitude;
-            arrivedLongitude = mMap.getCameraPosition().target.longitude;
-            arrivedAddress = getAddress(arrivedLatitude,arrivedLongitude);
-
-            arrivedAddressTextView.setText(arrivedAddress);
-
-            System.out.println("정중앙 위치값");
-            System.out.println("x : " + arrivedLatitude);
-            System.out.println("y : " + arrivedLongitude);
-        });
-
         long minTime = 10000;   //10초마다 (단위 milliSecond)
         float minDistance = 20; //20M 마다
-
-        LatLng objLocaion;
-        //double dLatitude = 37.448344;
-        //double dLongitude = 126.657474;
 
         mMap.setMapType(com.naver.maps.map.NaverMap.MapType.Basic);
         mMap.setSymbolScale(1.0f);
