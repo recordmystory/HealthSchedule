@@ -15,36 +15,45 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // schedule 테이블 생성 쿼리
         String createTableQuery = "CREATE TABLE schedule (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "healthhour TEXT," +
+                "healthhour INTEGER," +
                 "year INTEGER," +
                 "month INTEGER," +
-                "day INTEGER" +
+                "day INTEGER," +
+                "arrived_address TEXT" +
                 ")";
         db.execSQL(createTableQuery);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { // 기존 테이블을 삭제하고 새로운 테이블을 생성할 때 사용
-
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         String dropTableQuery = "DROP TABLE IF EXISTS schedule";
         db.execSQL(dropTableQuery);
         onCreate(db);
     }
 
-    public void resetTable() { // 데이터베이스 테이블 삭제 및 재생성
+    public void resetTable() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS schedule");
         onCreate(db);
         db.close();
     }
 
-    public void clearTable() { // 데이터베이스 테이블의 모든 행 삭제
+    public void clearTable() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete("schedule", null, null);
         db.close();
+    }
+
+
+    public boolean deleteSchedule(int hour, int year, int month, int day, String arrived_address) {
+        SQLiteDatabase db = getWritableDatabase();
+        String whereClause = "healthhour = ? AND year = ? AND month = ? AND day = ? AND arrived_address = ?";
+        String[] whereArgs = {String.valueOf(hour), String.valueOf(year), String.valueOf(month), String.valueOf(day), arrived_address};
+        int rowsAffected = db.delete("schedule", whereClause, whereArgs);
+        db.close();
+        return rowsAffected > 0;
     }
 
 }

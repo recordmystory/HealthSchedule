@@ -42,6 +42,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button btnShowSchedule = findViewById(R.id.btnShowSchedule);
+        btnShowSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ScheduleListActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         Button btnHealthDataInput = findViewById(R.id.btnHealthDataInput); // 버튼 클릭시 운동시간 및 날짜 입력 화면으로 넘어감
         //btnHealthDataInput 버튼 클릭
@@ -125,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
 

@@ -80,13 +80,12 @@ public class ScheduleUploadActivity extends AppCompatActivity {
                     sqlDB = myDBHelper.getWritableDatabase();
 
 
-                    sqlDB.delete("schedule", null, null); // DB에 남아있는 데이터 삭제
-
                     ContentValues values = new ContentValues();
                     values.put("healthhour", healthHour.getText().toString());
                     values.put("year", mYear);
                     values.put("month", mMonth);
                     values.put("day", mDay);
+                    values.put("arrived_address", arrivedAddress);
 
                     // 데이터베이스에 값을 저장
                     long result = sqlDB.insert("schedule", null, values);
@@ -94,7 +93,7 @@ public class ScheduleUploadActivity extends AppCompatActivity {
                     if (result != -1) {
 
                         txtnull.setText("운동시간이 등록되었습니다.");
-                        Intent intent = new Intent(view.getContext(), HealthTimeRecommend.class);
+                        Intent intent = new Intent(view.getContext(), ScheduleListActivity.class);
                         startActivity(intent);
                     }
 
@@ -105,13 +104,6 @@ public class ScheduleUploadActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-                    /* txtnull.setText("운동시간이 등록되었습니다.");
-                    intent.putExtra("hour", healthHour.getText().toString());
-                    intent.putExtra("year", mYear);
-                    intent.putExtra("month", mMonth);
-                    intent.putExtra("day", mDay); */
 
 
         //도착위치지정 btn
