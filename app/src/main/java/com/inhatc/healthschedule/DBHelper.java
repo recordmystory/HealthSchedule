@@ -47,13 +47,20 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
     }
 
 
-    public boolean deleteSchedule(int hour, int year, int month, int day, String arrived_address) {
+    public void deleteSchedule(int hour, int year, int month, int day, String arrived_address) {
         SQLiteDatabase db = getWritableDatabase();
         String whereClause = "healthhour = ? AND year = ? AND month = ? AND day = ? AND arrived_address = ?";
         String[] whereArgs = {String.valueOf(hour), String.valueOf(year), String.valueOf(month), String.valueOf(day), arrived_address};
-        int rowsAffected = db.delete("schedule", whereClause, whereArgs);
+        //int rowsAffected = db.delete("schedule", whereClause, whereArgs);
+
+        db.execSQL("DELETE FROM schedule WHERE healthhour = " + String.valueOf(hour)
+                + " AND year = " + String.valueOf(year)
+                + " AND month = " + String.valueOf(month)
+                + " AND day = " + String.valueOf(day)
+                + " AND arrived_address =  '" + arrived_address + "'");
+
         db.close();
-        return rowsAffected > 0;
+        //return rowsAffected > 0;
     }
 
 }

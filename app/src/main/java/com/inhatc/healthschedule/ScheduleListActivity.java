@@ -109,10 +109,12 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
             String arrivedAddress = scheduleParts[2].split(": ")[1];
 
             // 일정 삭제
-            boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
-            Log.d("Deletion Status", "Is Deleted: " + isDeleted);
+            //boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
+            myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
+            //Log.d("Deletion Status", "Is Deleted: " + isDeleted);
+            Log.d("Deletion Status", "Is Deleted: ");
 
-            if (isDeleted) {
+            //if (isDeleted) {
                 scheduleList.remove(position);
 
                 for (int j = i + 1; j < selectedPositions.size(); j++) {
@@ -120,7 +122,7 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
                     selectedPositions.set(j, oldPosition - 1);
                 }
 
-            }
+            //}
         }
         Log.d("Modified Positions", selectedPositions.toString());
 
