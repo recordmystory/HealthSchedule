@@ -125,7 +125,9 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
             //위도, 경도값 가져오기
             String[] latitudeParts = scheduleParts[3].split(": ")[1].split(",");
             double arrivedLatitude = Double.parseDouble(latitudeParts[0]);
-            double arrivedLongitude = Double.parseDouble(latitudeParts[1]);
+
+            String[] longitudeParts = scheduleParts[4].split(": ")[1].split(",");
+            double arrivedLongitude = Double.parseDouble(longitudeParts[0]);
 
             // 일정 삭제
             //boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
