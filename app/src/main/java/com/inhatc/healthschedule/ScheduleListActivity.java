@@ -18,10 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScheduleListActivity extends AppCompatActivity { //등록된 일정 보여주는 클래스
-    ListView listView;
-    Button btnDelete;
+    ListView listView; // 스케줄 List
+    Button btnDelete; // 삭제 버튼
 
-    Button btnMainActivity;
+    Button btnMainActivity; // MainActivity로 이동하는 버튼
+    Button btnScheduleUpload; // 스케줄 등록 화면으로 이동하는 버튼
 
     DBHelper myDBHelper;
     SQLiteDatabase sqlDB;
@@ -34,7 +35,7 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
         setContentView(R.layout.activity_schedule_list);
 
         btnMainActivity = findViewById(R.id.btnMainActivity);
-
+        btnScheduleUpload=findViewById(R.id.btnScheduleUpload);
 
         listView = findViewById(R.id.listView);
         btnDelete = findViewById(R.id.btnDelete);
@@ -47,6 +48,14 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
         listView.setAdapter(adapter);
 
         showScheduleList();
+
+        btnScheduleUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ScheduleListActivity.this, ScheduleUploadActivity.class);
+                startActivity(intent);
+            }
+        });
 
         btnMainActivity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +137,7 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
 
             String[] longitudeParts = scheduleParts[4].split(": ")[1].split(",");
             double arrivedLongitude = Double.parseDouble(longitudeParts[0]);
+
 
             // 일정 삭제
             //boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);

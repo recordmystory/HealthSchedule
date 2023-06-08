@@ -10,7 +10,7 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="590dp"
+        android:layout_height="557dp"
         android:choiceMode="multipleChoice"
         android:listSelector="@android:color/darker_gray"
         android:padding="5dp">
@@ -28,8 +28,16 @@
         android:layout_width="match_parent"
 
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-5dp"
         android:text="MainActivity로 이동" />
+
+
+    <Button
+        android:id="@+id/btnScheduleUpload"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:text="스케줄 등록" />
 
 
 </LinearLayout>
