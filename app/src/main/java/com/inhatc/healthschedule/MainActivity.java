@@ -6,11 +6,20 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -28,6 +37,8 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView textApiData;
     String arrivedAddress = null;
 
+
+
+    // Channel에 대한 id 생성
+    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+    // Channel을 생성 및 전달해 줄 수 있는 Manager 생성
+    private NotificationManager mNotificationManager;
+
+    // Notification에 대한 ID 생성
+    private static final int NOTIFICATION_ID = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
         textApiData = (TextView) findViewById(R.id.textApiData);
         textApiData.setMovementMethod(new ScrollingMovementMethod());  //스크롤
 
+        Calendar calendar = new GregorianCalendar();
+        String today = String.valueOf(calendar.get(Calendar.YEAR)) + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+
+
         //Write 버튼 클릭
         Button getApiData = (Button) findViewById(R.id.btnGetApiData);
         getApiData.setOnClickListener(new View.OnClickListener() {
@@ -89,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 String serviceKey = "HsRNXBqjnN5wPvLYWibtHMPTb0WvozkrwMOG6f3Ci%2Bwg4FlX5DhJ7EwAA%2F6qZr18U1HydLvkm8uKwhHZy8o7IQ%3D%3D"; //일반 인증키(Encoding)
                 String numOfRows = "1000";      //한 페이지 결과 수
                 String pageNo = "1";            //페이지 번호
-                String dataType = "XML";         //요청 자료형식(XML/JSON)
-                String base_date = "20230603"; //발표일자
+                String dataType = "XML";        //요청 자료형식(XML/JSON)
+                String base_date = today;       //발표일자
                 String base_time = "0200";      //발표 시간
                 String nx = "55";               //예보지점 X
                 String ny = "127";              //예보지점 Y
@@ -135,7 +159,59 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //노티 버튼
+        Button btnNoti = (Button) findViewById(R.id.btnNoti);
+        btnNoti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendNotification();
+            }
+        });
+        createNotificationChannel();
 
+
+    }
+
+    //채널을 만드는 메소드
+    public void createNotificationChannel()
+    {
+        //notification manager 생성
+        mNotificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        // 기기(device)의 SDK 버전 확인 ( SDK 26 버전 이상인지 - VERSION_CODES.O = 26)
+        if(android.os.Build.VERSION.SDK_INT
+                >= android.os.Build.VERSION_CODES.O){
+            //Channel 정의 생성자( construct 이용 )
+            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID
+                    ,"Test Notification",mNotificationManager.IMPORTANCE_HIGH);
+            //Channel에 대한 기본 설정
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription("Notification from Mascot");
+            // Manager을 이용하여 Channel 생성
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        } else {
+            
+        }
+
+    }
+
+    // Notification Builder를 만드는 메소드
+    private NotificationCompat.Builder getNotificationBuilder() {
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+                .setContentTitle("You've been notified!")
+                .setContentText("This is your notification text.")
+                .setSmallIcon(R.drawable.nfc);
+        return notifyBuilder;
+    }
+
+    // Notification을 보내는 메소드
+    public void sendNotification(){
+        // Builder 생성
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        // Manager를 통해 notification 디바이스로 전달
+        mNotificationManager.notify(NOTIFICATION_ID,notifyBuilder.build());
     }
 
 

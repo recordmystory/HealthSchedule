@@ -46,6 +46,12 @@
             android:layout_height="wrap_content"
             android:text="스케줄 확인" />
 
+        <Button
+            android:id="@+id/btnNoti"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notification Test" />
+
         <TextView
             android:id="@+id/textApiData"
             android:layout_width="match_parent"
