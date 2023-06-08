@@ -21,6 +21,8 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
     ListView listView;
     Button btnDelete;
 
+    Button btnMainActivity;
+
     DBHelper myDBHelper;
     SQLiteDatabase sqlDB;
     ArrayAdapter<String> adapter;
@@ -30,6 +32,8 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_list);
+
+        btnMainActivity = findViewById(R.id.btnMainActivity);
 
 
         listView = findViewById(R.id.listView);
@@ -43,6 +47,14 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
         listView.setAdapter(adapter);
 
         showScheduleList();
+
+        btnMainActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ScheduleListActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,8 +85,10 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
                 int month = cursor.getInt(cursor.getColumnIndexOrThrow("month"));
                 int day = cursor.getInt(cursor.getColumnIndexOrThrow("day"));
                 String arrivedAddress = cursor.getString(cursor.getColumnIndexOrThrow("arrived_address"));
+                double arrivedlatitude = cursor.getDouble(cursor.getColumnIndexOrThrow("arrived_latitude"));
+                double arrivedlongitude = cursor.getDouble(cursor.getColumnIndexOrThrow("arrived_longitude"));
 
-                String schedule = "운동시간 : " + hour + "시간\n운동날짜 : " + year + "/" + (month + 1) + "/" + day + "\n도착주소 : " + arrivedAddress;
+                String schedule = "운동시간 : " + hour + "시간\n운동날짜 : " + year + "/" + (month + 1) + "/" + day + "\n도착주소 : " + arrivedAddress + "\n위도 : " + arrivedlatitude + "\n경도 : " + arrivedlongitude;
                 scheduleList.add(schedule);
             } while (cursor.moveToNext());
         }
@@ -108,19 +122,24 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
             int day = Integer.parseInt(dateParts[2].replace(" ", ""));
             String arrivedAddress = scheduleParts[2].split(": ")[1];
 
+            //위도, 경도값 가져오기
+            String[] latitudeParts = scheduleParts[3].split(": ")[1].split(",");
+            double arrivedLatitude = Double.parseDouble(latitudeParts[0]);
+            double arrivedLongitude = Double.parseDouble(latitudeParts[1]);
+
             // 일정 삭제
             //boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
-            myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
+            myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress,arrivedLatitude, arrivedLongitude);
             //Log.d("Deletion Status", "Is Deleted: " + isDeleted);
             Log.d("Deletion Status", "Is Deleted: ");
 
             //if (isDeleted) {
-                scheduleList.remove(position);
+            scheduleList.remove(position);
 
-                for (int j = i + 1; j < selectedPositions.size(); j++) {
-                    int oldPosition = selectedPositions.get(j);
-                    selectedPositions.set(j, oldPosition - 1);
-                }
+            for (int j = i + 1; j < selectedPositions.size(); j++) {
+                int oldPosition = selectedPositions.get(j);
+                selectedPositions.set(j, oldPosition - 1);
+            }
 
             //}
         }

@@ -81,11 +81,13 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
 
                     ContentValues values = new ContentValues();
-                    values.put("healthhour", healthHour.getText().toString());
-                    values.put("year", mYear);
-                    values.put("month", mMonth);
-                    values.put("day", mDay);
-                    values.put("arrived_address", arrivedAddress);
+                    values.put("healthhour", healthHour.getText().toString()); // 운동 소요시간
+                    values.put("year", mYear); // 날짜 년
+                    values.put("month", mMonth); // 날짜 월
+                    values.put("day", mDay); // 날짜 일
+                    values.put("arrived_latitude", arrivedLatitude); // 도착지점 위도
+                    values.put("arrived_longitude", arrivedLongitude); //도착지점 경도
+                    values.put("arrived_address", arrivedAddress); // 도착지점 주소
 
                     // 데이터베이스에 값을 저장
                     long result = sqlDB.insert("schedule", null, values);

@@ -21,7 +21,12 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
                 "year INTEGER," +
                 "month INTEGER," +
                 "day INTEGER," +
-                "arrived_address TEXT" +
+                "arrived_address TEXT," +
+                "arrived_latitude REAL," +
+                "arrived_longitude REAL," +
+                "exercise_check INTEGER," +
+                "schedule_alarm INTEGER," +
+                "extra TEXT" +
                 ")";
         db.execSQL(createTableQuery);
     }
@@ -47,7 +52,7 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
     }
 
 
-    public void deleteSchedule(int hour, int year, int month, int day, String arrived_address) {
+    public void deleteSchedule(int hour, int year, int month, int day, String arrived_address, double arrived_latitude, double arrived_longitude) {
         SQLiteDatabase db = getWritableDatabase();
         //String whereClause = "healthhour = ? AND year = ? AND month = ? AND day = ? AND arrived_address = ?";
         //String[] whereArgs = {String.valueOf(hour), String.valueOf(year), String.valueOf(month), String.valueOf(day), arrived_address};
@@ -58,7 +63,9 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
                 + " AND year = " + year
                 + " AND month = " + month
                 + " AND day = " + day
-                + " AND arrived_address =  '" + arrived_address + "'");
+                + " AND arrived_address =  '" + arrived_address + "'"
+                + " AND arrived_latitude = " + arrived_latitude
+                + " AND arrived_longitude = " + arrived_longitude);
 
         db.close();
         //return rowsAffected > 0;
