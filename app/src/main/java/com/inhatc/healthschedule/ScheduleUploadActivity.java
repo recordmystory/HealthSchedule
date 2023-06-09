@@ -30,7 +30,9 @@ public class ScheduleUploadActivity extends AppCompatActivity {
     EditText healthHour; // 운동 소요시간
     Button btnRegister; // 등록 버튼
     Button btnRegisterNaverMap; //도착위치 등록 btn
-    TextView txtnull; // 운동 소요시간에 아무 값도 입력되지 않았을 때 표시될 문구
+    TextView txtHournull; // 운동 소요시간에 아무 값도 입력되지 않았을 때 표시될 문구
+
+    TextView txtAddressNull;
 
 
     int mYear = 0, mMonth = 0, mDay = 0;  // DatePicker 년, 월, 일
@@ -50,7 +52,8 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
         healthHour = findViewById(R.id.healthHour);
         btnRegister = findViewById(R.id.btnRegister);
-        txtnull = (TextView) findViewById(R.id.txtnull);
+        txtHournull = (TextView) findViewById(R.id.txtHourNull);
+        txtAddressNull = (TextView) findViewById(R.id.txtAddressNull);
 
         arrivedLatitudeTextView = (TextView) findViewById(R.id.arrivedLatitudeTextView);
         arrivedLongitudeTextView = (TextView) findViewById(R.id.arrivedLongitudeTextView);
@@ -69,8 +72,10 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) { // 운동 소요시간 등록 버튼 클릭시
-                if (healthHour.getText().toString().length() == 0/* && healthHour.getText().equals(0)*/) { // 사용자가 아무 값도 입력하지 않은 경우
-                    txtnull.setText("소요시간을 입력해주세요.");
+                if (healthHour.getText().toString().length() == 0/* && healthHour.getText().equals(0)*/) { // 사용자가 운동시간 입력하지 않은 경우
+                    txtHournull.setText("소요시간을 입력해주세요.");
+                } else if (arrivedLatitude == 0 || arrivedLongitude == 0 || arrivedAddress == null) { // 사용자가 주소 지정하지 않은 경우
+                    txtAddressNull.setText("도착 위치를 지정해주세요.");
                 } else { // 사용자가 입력한 값이 있을 경우
 
                     String hour = healthHour.getText().toString();
@@ -94,7 +99,7 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
                     if (result != -1) {
 
-                        txtnull.setText("운동시간이 등록되었습니다.");
+                        txtHournull.setText("운동시간이 등록되었습니다.");
                         Intent intent = new Intent(view.getContext(), ScheduleListActivity.class);
                         startActivity(intent);
                     }

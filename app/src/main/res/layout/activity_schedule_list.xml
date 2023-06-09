@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="557dp"
         android:choiceMode="multipleChoice"
-        android:listSelector="@android:color/darker_gray"
-        android:padding="5dp">
+        android:listSelector="@android:color/darker_gray">
 
     </ListView>
 

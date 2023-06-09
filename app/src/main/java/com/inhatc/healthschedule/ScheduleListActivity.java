@@ -119,6 +119,11 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
         }
         Log.d("Selected Positions", selectedPositions.toString());
 
+        if(selectedPositions.isEmpty()){ // selectedPositions 리스트 비어있을 때
+           Log.d("Deletion Status", "삭제할 항목이 선택되지 않았습니다.");
+            return;
+        }
+
         for (int i = selectedPositions.size() - 1; i >= 0; i--) {
             int position = selectedPositions.get(i);
             String schedule = scheduleList.get(position);
