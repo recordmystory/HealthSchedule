@@ -21,30 +21,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
+<!--
 
         <Button
             android:id="@+id/btnNaverMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="NaverMap" />
+-->
 
         <Button
             android:id="@+id/btnGetApiData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="API Connect Test" />
+<!--
 
         <Button
             android:id="@+id/btnHealthDataInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="운동시간 및 날짜 입력" />
-
+-->
+<!--
         <Button
             android:id="@+id/btnShowSchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="스케줄 확인" />
+            android:text="스케줄 확인" />-->
 
         <Button
             android:id="@+id/btnNoti"

@@ -150,7 +150,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
         CircleOverlay circle = new CircleOverlay();
         circle.setCenter(new LatLng(arrivedLatitude, arrivedLongitude));
-        circle.setRadius(50);  //m단위
+        circle.setRadius(55);  //m단위
         circle.setColor(Color.parseColor("#CCFFFF"));
         circle.setMap(naverMap);
 
@@ -185,8 +185,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
         //기지국으로 측정
-        locationProvider = LocationManager.NETWORK_PROVIDER;
-        locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
+        //locationProvider = LocationManager.NETWORK_PROVIDER;
+        //locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
     }
 
@@ -261,7 +261,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
             //전체 속도 계산
             totalSpeed = totalDistance * 1000.00 / (currentTime - startTime);
             totalCostCalorie = (currentTime - startTime) / 1000.0 * costCaloriePerSecond;
-            totalDistanceTextView.setText("운동 종류 : " + exerciseGubun + " m\n");
+            totalDistanceTextView.setText("운동 종류 : " + exerciseGubun + "\n");
             totalDistanceTextView.append("총 이동거리 : " + String.format("%.1f", totalDistance) + " m\n");
             totalDistanceTextView.append("현재 이동거리 : " + String.format("%.1f", distance) + " m\n");
             totalDistanceTextView.append("전체속도 : " + String.format("%.1f", totalSpeed) + " m/s\n");

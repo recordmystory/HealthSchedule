@@ -37,6 +37,6 @@
         android:id="@+id/btnMainActivity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MainActivity로 이동" />
+        android:text="부가기능" />
 
 </LinearLayout>

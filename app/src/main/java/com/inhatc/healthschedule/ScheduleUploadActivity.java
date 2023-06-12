@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -43,6 +45,7 @@ public class ScheduleUploadActivity extends AppCompatActivity {
     private TextView arrivedLatitudeTextView;
     private TextView arrivedLongitudeTextView;
     private TextView arrivedAddressTextView;
+    String exerciseGubun = null;
 
 
     @Override
@@ -59,7 +62,6 @@ public class ScheduleUploadActivity extends AppCompatActivity {
         arrivedLongitudeTextView = (TextView) findViewById(R.id.arrivedLongitudeTextView);
         arrivedAddressTextView = (TextView) findViewById(R.id.arrivedAddressTextView);
 
-
         Calendar calendar = new GregorianCalendar();
         mYear = calendar.get(Calendar.YEAR);
         mMonth = calendar.get(Calendar.MONTH);
@@ -67,6 +69,12 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
         DatePicker datePicker = findViewById(R.id.DatePicker);
         datePicker.init(mYear, mMonth, mDay, mOnDateChangedListener);
+
+        // Spinner
+        Spinner exerciseGubun = (Spinner)findViewById(R.id.exerciseGubun);
+        ArrayAdapter yearAdapter = ArrayAdapter.createFromResource(this, R.array.exerciseGubun, android.R.layout.simple_spinner_item);
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exerciseGubun.setAdapter(yearAdapter);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
 
@@ -86,6 +94,7 @@ public class ScheduleUploadActivity extends AppCompatActivity {
 
 
                     ContentValues values = new ContentValues();
+                    values.put("exercise_gubun", (String) exerciseGubun.getSelectedItem()); //운동 종목
                     values.put("healthhour", healthHour.getText().toString()); // 운동 소요시간
                     values.put("year", mYear); // 날짜 년
                     values.put("month", mMonth); // 날짜 월
@@ -93,6 +102,7 @@ public class ScheduleUploadActivity extends AppCompatActivity {
                     values.put("arrived_latitude", arrivedLatitude); // 도착지점 위도
                     values.put("arrived_longitude", arrivedLongitude); //도착지점 경도
                     values.put("arrived_address", arrivedAddress); // 도착지점 주소
+                    values.put("extra", "-"); // 도착지점 주소
 
                     // 데이터베이스에 값을 저장
                     long result = sqlDB.insert("schedule", null, values);

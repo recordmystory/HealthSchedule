@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -173,7 +174,13 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
                 double arrivedlatitude = cursor.getDouble(cursor.getColumnIndexOrThrow("arrived_latitude"));
                 double arrivedlongitude = cursor.getDouble(cursor.getColumnIndexOrThrow("arrived_longitude"));
 
+
                 String schedule = "운동시간 : " + hour + "시간\n운동날짜 : " + year + "/" + (month + 1) + "/" + day + "\n도착주소 : " + arrivedAddress + "\n위도 : " + arrivedlatitude + "\n경도 : " + arrivedlongitude;
+                        schedule += "\n운동 종류 : " + cursor.getString(cursor.getColumnIndexOrThrow("exercise_gubun"));
+                        schedule += "\n소요시간 : " + (cursor.getInt(cursor.getColumnIndexOrThrow("exercise_time")) / 60) + "분 " + (cursor.getInt(cursor.getColumnIndexOrThrow("exercise_time")) % 60) + "초";
+                        schedule += "\n이동거리 : " + cursor.getInt(cursor.getColumnIndexOrThrow("total_distance")) + " m";
+                        schedule += "\n소모칼로리 : " + cursor.getInt(cursor.getColumnIndexOrThrow("cost_calorie")) + " kcal";
+                        schedule += "\n완료유무 : " + cursor.getString(cursor.getColumnIndexOrThrow("extra"));
                 scheduleList.add(schedule);
             } while (cursor.moveToNext());
         }
@@ -267,7 +274,49 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
                         //btnMainActivity.setText("총 이동거리 : " + totalDistance + "\n총 소요시간(초) : " + exerciseTimeSecond + "\n총 소요 칼로리 : " +  totalCostCalorie);
 
                         //값을 받아왔은 해당 스케줄에 Upd 후 재조회 하면 끝!
+                        List<Integer> selectedPositions = new ArrayList<>();
+                        SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
+                        for (int i = 0; i < checkedItemPositions.size(); i++) {
+                            int position = checkedItemPositions.keyAt(i);
+                            if (checkedItemPositions.get(position)) {
+                                selectedPositions.add(position);
+                            }
+                        }
+                        Log.d("Selected Positions", selectedPositions.toString());
+                        if(selectedPositions.isEmpty()){ // selectedPositions 리스트 비어있을 때
+                            Toast.makeText(getApplicationContext(), "운동 시작할 스케줄을 선택해 주세요!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
+                        for (int i = selectedPositions.size() - 1; i >= 0; i--) {
+                            int position = selectedPositions.get(i);
+                            String schedule = scheduleList.get(position);
+                            String[] scheduleParts = schedule.split("\n");
+                            String[] hourParts = scheduleParts[0].split(": ");
+                            int hour = Integer.parseInt(hourParts[1].replace("시간", ""));
+                            String[] dateParts = scheduleParts[1].split(": ")[1].split("/");
+                            int year = Integer.parseInt(dateParts[0]);
+                            int month = Integer.parseInt(dateParts[1].replace(" ", ""));
+                            int day = Integer.parseInt(dateParts[2].replace(" ", ""));
+                            String arrivedAddress = scheduleParts[2].split(": ")[1];
+
+                            //위도, 경도값 가져오기
+                            String[] latitudeParts = scheduleParts[3].split(": ")[1].split(",");
+                            arrivedLatitude = Double.parseDouble(latitudeParts[0]);
+                            String[] longitudeParts = scheduleParts[4].split(": ")[1].split(",");
+                            arrivedLongitude = Double.parseDouble(longitudeParts[0]);
+
+                            //도착위치 NaverMap.java에 전달
+                            //Intent intent = new Intent(view.getContext(), NaverMap.class);위에서 이미 선언함
+                            intent.putExtra("arrivedLatitude", arrivedLatitude); //id 전달
+                            intent.putExtra("arrivedLongitude", arrivedLongitude); //회원번호 전달
+
+                            //일정 완료 Upd
+                            myDBHelper.completeScheudUpd(hour, year, month, day, arrivedAddress,arrivedLatitude, arrivedLongitude, exerciseTimeSecond, totalCostCalorie, totalDistance);
+                            showScheduleList();
+                            Toast.makeText(getApplicationContext(), "정상적으로 도착처리되었습니다.", Toast.LENGTH_SHORT).show();
+
+                        }
                     }
                 }
             });

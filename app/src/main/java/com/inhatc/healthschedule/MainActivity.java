@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+/*
 
         Button btnShowSchedule = findViewById(R.id.btnShowSchedule);
         btnShowSchedule.setOnClickListener(new View.OnClickListener() {
@@ -91,13 +92,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), NaverMap.class);
 
+
                 //startActivityResult.launch(intent);
                 launcher.launch(intent);
 
                 //startActivityForResult(intent, 100);
             }
         });
-
+*/
         //api 데이터 화면표시
         textApiData = (TextView) findViewById(R.id.textApiData);
         textApiData.setMovementMethod(new ScrollingMovementMethod());  //스크롤

@@ -76,26 +76,28 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
         db.close();
         //return rowsAffected > 0;
     }
-    public void completeScheud(int hour, int year, int month, int day, String arrived_address, double arrived_latitude, double arrived_longitude, int exerciseTime, int costCalorie, int totalDistance) {
+    public void completeScheudUpd(int hour, int year, int month, int day, String arrived_address, double arrived_latitude, double arrived_longitude, int exerciseTime, int costCalorie, int totalDistance) {
         SQLiteDatabase db = getWritableDatabase();
         //String whereClause = "healthhour = ? AND year = ? AND month = ? AND day = ? AND arrived_address = ?";
         //String[] whereArgs = {String.valueOf(hour), String.valueOf(year), String.valueOf(month), String.valueOf(day), arrived_address};
         //int rowsAffected = db.delete("schedule", whereClause, whereArgs);
 
         month--;
-        db.execSQL("UPDATE FROM schedule"
+        db.execSQL("UPDATE schedule "
                 + "SET exercise_time = " + exerciseTime
                 + ", cost_calorie = " + costCalorie
                 + ", total_distance = " + totalDistance
-                + ", extra = 완료"
+                + ", extra = '완료'"
 
-                + "WHERE healthhour = " + hour
+                + " WHERE healthhour = " + hour
                 + " AND year = " + year
                 + " AND month = " + month
                 + " AND day = " + day
                 + " AND arrived_address =  '" + arrived_address + "'"
                 + " AND arrived_latitude = " + arrived_latitude
                 + " AND arrived_longitude = " + arrived_longitude);
+
+        //UPDATE schedule SET exercise_time = 46, cost_calorie = 2, total_distance = 22, extra = 완료 WHERE healthhour = 1 AND year = 2023 AND month = 5 AND day = 12 AND arrived_address =  '대한민국 인천광역시 논현14단지등대마을' AND arrived_latitude = 37.40935209999999 AND arrived_longitude = 126.7357374
 
         db.close();
         //return rowsAffected > 0;
