@@ -2,6 +2,11 @@ package com.inhatc.healthschedule;
 
 import static androidx.core.content.ContentProviderCompat.requireContext;
 
+import static java.lang.Math.asin;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +36,7 @@ import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.overlay.CircleOverlay;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.overlay.Marker;
@@ -45,26 +51,35 @@ import java.util.Locale;
 public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
     MapFragment mapFragment;
+    Button btnArrived;
 
     private com.naver.maps.map.NaverMap mMap;
     private LatLng Start_location = null;
     private LatLng Current_location;
-    private LatLng Center_location;
+    private LatLng Arrived_location;
     private String strPosition = null;
-    private String strCaption = null;
     private int intStart = 0;
 
+    double arrivedLatitude = 0;
+    double arrivedLongitude = 0;
     LocationManager locationManager;
     LocationListener locationListener;
 
-    //정중앙 마커 위칭값
-    double arrivedLatitude = 0;
-    double arrivedLongitude = 0;
+    double totalDistance = 0;
+    private TextView totalDistanceTextView;
 
-    private TextView arrivedAddressTextView;
-    String arrivedAddress = null;
-    
-    //
+    long startTime;  //초기 시작시간
+    long beforeTime;  //직전 측정시간
+    long currentTime; //현재 측정시간
+
+    double totalSpeed;  //전체속도
+    double currentSpeed; //현재속도
+
+    String exerciseGubun = null;
+    double exerciseTimeSecond = 0;
+    double totalCostCalorie = 0;
+    double costCaloriePerSecond = 0;
+
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
 
@@ -73,6 +88,20 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.naver_map);
 
+        btnArrived = findViewById(R.id.btnArrived);
+        btnArrived.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), ScheduleListActivity.class);
+                intent.putExtra("totalCostCalorie", (int)totalCostCalorie);
+                intent.putExtra("exerciseTimeSecond", (int)exerciseTimeSecond);
+                intent.putExtra("totalDistance", (int)totalDistance);
+                setResult(RESULT_OK, intent);   //layout 종료하면서 값 전달
+                finish();
+            }
+        });
+
+        totalDistanceTextView = (TextView) findViewById(R.id.totalDistanceTextView);
         //현재위치 찾기 추가
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
@@ -99,6 +128,34 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
         mMap.setMapType(com.naver.maps.map.NaverMap.MapType.Basic);
         mMap.setSymbolScale(1.0f);
+
+        //지도가 준비 되고 난 후 도착지점 표시
+        Intent intent = getIntent();
+        arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
+        arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
+        exerciseGubun = "자전거";
+        Arrived_location = new LatLng(arrivedLatitude, arrivedLongitude);
+        strPosition = "도착 지점";
+        mDisplayMarker(Arrived_location, "#0000FF"); //파랑
+
+        if ("걷기".equals(exerciseGubun)) {
+            costCaloriePerSecond = 2.4 / 60.0;
+        } else if ("달리기".equals(exerciseGubun)) {
+            costCaloriePerSecond = 8.0 / 60.0;
+        } else if ("자전거".equals(exerciseGubun)) {
+            costCaloriePerSecond = 3.7 / 60.0;
+        }
+
+
+
+        CircleOverlay circle = new CircleOverlay();
+        circle.setCenter(new LatLng(arrivedLatitude, arrivedLongitude));
+        circle.setRadius(50);  //m단위
+        circle.setColor(Color.parseColor("#CCFFFF"));
+        circle.setMap(naverMap);
+
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(Arrived_location);
+        mMap.moveCamera(cameraUpdate);
 
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -128,8 +185,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
         //기지국으로 측정
-        //locationProvider = LocationManager.NETWORK_PROVIDER;
-        //locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
+        locationProvider = LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
     }
 
@@ -144,7 +201,7 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void mAlertStatus(String provider) {
-        Toast.makeText(this, "Location SErvices has been changed to " + provider, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Location Services has been changed to " + provider, Toast.LENGTH_LONG).show();
     }
 
     public void mUpdateMap(Location location) {
@@ -154,18 +211,24 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
 
         Current_location = new LatLng(dLatitude, dLongitude);
 
+        //처음 출발 위치
         if (Start_location == null) {
-
             LocationOverlay locationOverlay = mMap.getLocationOverlay();
             locationOverlay.setVisible(true);
             locationOverlay.setPosition(Current_location);
 
+            strPosition = "출발";
+            mDisplayMarker(Current_location, "#0000FF");    //파랑
+            intStart ++;
             CameraUpdate cameraUpdate = CameraUpdate.scrollTo(Current_location);
             mMap.moveCamera(cameraUpdate);
 
+            startTime = System.currentTimeMillis();  //초기 시작시간
+            beforeTime = startTime;
+
         } else {
-            CameraUpdate cameraUpdate1 = CameraUpdate.scrollTo(Current_location);
-            mMap.moveCamera(cameraUpdate1);
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(Current_location);
+            mMap.moveCamera(cameraUpdate);
 
             PathOverlay path = new PathOverlay();
             path.setCoords(Arrays.asList(
@@ -177,28 +240,67 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
             path.setColor(Color.BLUE);
             path.setWidth(10);
 
-            if (intStart == 0) {
-                strPosition = "출발";
-                strCaption = "Start_location";
-                mDisplayMarker(Start_location);
-                intStart ++;
+            //두 위치간의 거리 계산
+            Location startLocation = new Location("startLocation");
+            startLocation.setLatitude(Start_location.latitude);
+            startLocation.setLongitude(Start_location.longitude);
+
+            Location currentLocation = new Location("currentLocation");
+            startLocation.setLatitude(Current_location.latitude);
+            startLocation.setLongitude(Current_location.longitude);
+
+            double distance = getDistance(Start_location.latitude, Start_location.longitude, Current_location.latitude, Current_location.longitude);
+            totalDistance += distance;  //총 이동거리(M)
+            strPosition = String.valueOf(intStart);
+
+            intStart ++;
+
+            //현재 속도 계산
+            currentTime = System.currentTimeMillis();
+            currentSpeed = distance * 1000.00 / (currentTime - beforeTime);
+            //전체 속도 계산
+            totalSpeed = totalDistance * 1000.00 / (currentTime - startTime);
+            totalCostCalorie = (currentTime - startTime) / 1000.0 * costCaloriePerSecond;
+            totalDistanceTextView.setText("운동 종류 : " + exerciseGubun + " m\n");
+            totalDistanceTextView.append("총 이동거리 : " + String.format("%.1f", totalDistance) + " m\n");
+            totalDistanceTextView.append("현재 이동거리 : " + String.format("%.1f", distance) + " m\n");
+            totalDistanceTextView.append("전체속도 : " + String.format("%.1f", totalSpeed) + " m/s\n");
+            totalDistanceTextView.append("현재속도 : " + String.format("%.1f", currentSpeed) + " m/s\n");
+            totalDistanceTextView.append("시간차 : " + (currentTime - beforeTime) + " milsecond\n");
+            totalDistanceTextView.append("소요 칼로리 : " + String.format("%.1f", totalCostCalorie) + " kcal\n");
+
+            //totalDistanceTextView.append("위도 차이 : " + Math.abs(arrivedLatitude - Current_location.latitude) + " \n");
+            //totalDistanceTextView.append("경도 차이 : " + Math.abs(arrivedLongitude - Current_location.longitude) + " \n");
+
+            //반경 50m 안에 있는 지 확인, 위도경도상으로만 하면 정사각형 모양
+            //0.0001 = 1.1M
+            //0.009 = 99M
+            //0.0045 = 50M
+            // +- 편차니깐 0.00225 = 25M로 계산해야한다?
+            if (Math.abs(arrivedLatitude - Current_location.latitude) <= 0.0005 && Math.abs(arrivedLongitude - Current_location.longitude) <= 0.0005) {
+                btnArrived.setEnabled(true);
+                mDisplayMarker(Current_location, "#0000FF");    //파랑
+                Toast.makeText(getApplicationContext(), "도착하였습니다.", Toast.LENGTH_SHORT).show();
+                totalDistanceTextView.append("도착하였습니다.\n");
 
             } else {
-                strPosition = String.valueOf(intStart);
-                strCaption = String.valueOf(intStart);
-                mDisplayMarker(Current_location);
-                intStart ++;
-
+                mDisplayMarker(Current_location, "#00FF00");    //그린
             }
+
+            startLocation.setLatitude(Current_location.latitude);
+            startLocation.setLongitude(Current_location.longitude);
+            beforeTime = currentTime;
+            exerciseTimeSecond = (currentTime - startTime) / 1000;
         }
+
         Start_location = Current_location;
     }
 
-    private void mDisplayMarker(LatLng objLocation) {
+    private void mDisplayMarker(LatLng objLocation, String color) {
         Marker objMK = new Marker();
-
         objMK.setVisible(false);
         objMK.setPosition(objLocation);
+        objMK.setIconTintColor(Color.parseColor(color));
         objMK.setMap(mMap);
         objMK.setVisible(true);
 
@@ -257,10 +359,42 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         return nowAddress;
     }
 
+
+    public double getDistance(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6372.8 * 1000;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.pow(sin(dLat / 2), 2) + Math.pow(sin(dLon / 2), 2) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2));
+        double c = 2 * asin(sqrt(a));
+        return (R * c);
+        //return (R * c).toInt();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
+
+    private long backKeyPressedTime = 0;
+    @Override
+    public void onBackPressed() {
+        // 기존의 뒤로가기 버튼의 기능 제거
+        // super.onBackPressed();
+
+        // 2000 milliseconds = 2 seconds
+        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+            backKeyPressedTime = System.currentTimeMillis();
+            Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 2초 이내에 뒤로가기 버튼을 한번 더 클릭시 finish()(앱 종료)
+        if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
+            finish();
+        }
+    }
+
+
 
 }

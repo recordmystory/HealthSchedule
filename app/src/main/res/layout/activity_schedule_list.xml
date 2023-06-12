@@ -13,30 +13,30 @@
         android:layout_height="557dp"
         android:choiceMode="multipleChoice"
         android:listSelector="@android:color/darker_gray">
-
     </ListView>
+
+    <Button
+        android:id="@+id/btnScheduleUpload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="스케줄 등록" />
+
+    <Button
+        android:id="@+id/btnExerciseStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="선택한 스케줄로 운동 시작" />
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="삭제" />
+        android:text="스케줄 삭제" />
 
     <Button
         android:id="@+id/btnMainActivity"
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
         android:text="MainActivity로 이동" />
-
-
-    <Button
-        android:id="@+id/btnScheduleUpload"
-        android:layout_width="match_parent"
-
-        android:layout_height="wrap_content"
-
-        android:text="스케줄 등록" />
-
 
 </LinearLayout>

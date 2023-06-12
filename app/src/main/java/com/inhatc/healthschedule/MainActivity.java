@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+
 public class MainActivity extends AppCompatActivity {
 
     //사용자가 지정한 도착 위치값
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     double arrivedLongitude = 0;
     private TextView textApiData;
     String arrivedAddress = null;
+
 
 
 
@@ -370,9 +372,7 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = data.getData();
                         arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
                         arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
-
                         arrivedAddress = intent.getStringExtra("arrivedAddress");
-
 
                         textApiData.setText("위도x : " + arrivedLatitude + ", 경도y : " + arrivedLongitude + "\n" + arrivedAddress);
                     }

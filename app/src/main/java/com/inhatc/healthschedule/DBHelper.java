@@ -26,7 +26,13 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
                 "arrived_longitude REAL," +
                 "exercise_check INTEGER," +
                 "schedule_alarm INTEGER," +
-                "extra TEXT" +
+
+                "exercise_gubun TEXT," +    //운동 종류
+                "exercise_time INTEGER," +  //운동 소요시간
+                "cost_calorie INTEGER," +   //소모 칼로리
+                "total_distance INTEGER," +  //총 이동거리
+
+                "extra TEXT" +              //완료 유무
                 ")";
         db.execSQL(createTableQuery);
     }
@@ -60,6 +66,30 @@ public class DBHelper extends SQLiteOpenHelper {// 내부 DB 사용하기 위해
 
         month--;
         db.execSQL("DELETE FROM schedule WHERE healthhour = " + hour
+                + " AND year = " + year
+                + " AND month = " + month
+                + " AND day = " + day
+                + " AND arrived_address =  '" + arrived_address + "'"
+                + " AND arrived_latitude = " + arrived_latitude
+                + " AND arrived_longitude = " + arrived_longitude);
+
+        db.close();
+        //return rowsAffected > 0;
+    }
+    public void completeScheud(int hour, int year, int month, int day, String arrived_address, double arrived_latitude, double arrived_longitude, int exerciseTime, int costCalorie, int totalDistance) {
+        SQLiteDatabase db = getWritableDatabase();
+        //String whereClause = "healthhour = ? AND year = ? AND month = ? AND day = ? AND arrived_address = ?";
+        //String[] whereArgs = {String.valueOf(hour), String.valueOf(year), String.valueOf(month), String.valueOf(day), arrived_address};
+        //int rowsAffected = db.delete("schedule", whereClause, whereArgs);
+
+        month--;
+        db.execSQL("UPDATE FROM schedule"
+                + "SET exercise_time = " + exerciseTime
+                + ", cost_calorie = " + costCalorie
+                + ", total_distance = " + totalDistance
+                + ", extra = 완료"
+
+                + "WHERE healthhour = " + hour
                 + " AND year = " + year
                 + " AND month = " + month
                 + " AND day = " + day
