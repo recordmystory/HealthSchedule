@@ -53,6 +53,8 @@ public class ScheduleUploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_upload);
 
+        getSupportActionBar().setTitle("스케줄 등록"); // Action Bar Text 변경
+
         healthHour = findViewById(R.id.healthHour);
         btnRegister = findViewById(R.id.btnRegister);
         txtHournull = (TextView) findViewById(R.id.txtHourNull);
