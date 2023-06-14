@@ -186,8 +186,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
         //기지국으로 측정
-        locationProvider = LocationManager.NETWORK_PROVIDER;
-        locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
+        //locationProvider = LocationManager.NETWORK_PROVIDER;
+        //locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
     }
 
