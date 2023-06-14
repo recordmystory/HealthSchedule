@@ -133,7 +133,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         Intent intent = getIntent();
         arrivedLatitude = intent.getDoubleExtra("arrivedLatitude", 0);
         arrivedLongitude = intent.getDoubleExtra("arrivedLongitude", 0);
-        exerciseGubun = "자전거";
+        exerciseGubun = intent.getStringExtra("exerciseGubun");
+
         Arrived_location = new LatLng(arrivedLatitude, arrivedLongitude);
         strPosition = "도착 지점";
         mDisplayMarker(Arrived_location, "#0000FF"); //파랑
@@ -185,8 +186,8 @@ public class NaverMap extends FragmentActivity implements OnMapReadyCallback {
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
         //기지국으로 측정
-        //locationProvider = LocationManager.NETWORK_PROVIDER;
-        //locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
+        locationProvider = LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, locationListener);
 
     }
 

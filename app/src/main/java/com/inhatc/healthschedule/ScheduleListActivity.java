@@ -124,10 +124,14 @@ public class ScheduleListActivity extends AppCompatActivity { //등록된 일정
                     String[] longitudeParts = scheduleParts[4].split(": ")[1].split(",");
                     arrivedLongitude = Double.parseDouble(longitudeParts[0]);
 
+                    String[] exerciseGubunParts = scheduleParts[5].split(": ")[1].split(",");
+                    String exerciseGubun = exerciseGubunParts[0];
+
                     //도착위치 NaverMap.java에 전달
                     //Intent intent = new Intent(view.getContext(), NaverMap.class);위에서 이미 선언함
-                    intent.putExtra("arrivedLatitude", arrivedLatitude); //id 전달
-                    intent.putExtra("arrivedLongitude", arrivedLongitude); //회원번호 전달
+                    intent.putExtra("arrivedLatitude", arrivedLatitude); //도착 위도
+                    intent.putExtra("arrivedLongitude", arrivedLongitude); //도착 경도
+                    intent.putExtra("exerciseGubun", exerciseGubun); //운동 종류 전달
 
                     // 일정 삭제
                     //boolean isDeleted = myDBHelper.deleteSchedule(hour, year, month, day, arrivedAddress);
